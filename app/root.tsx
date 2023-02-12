@@ -7,7 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { Container } from "@mui/material";
+
 import styles from "./styles/app.css";
 
 export function links() {
@@ -28,12 +28,10 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Container>
-          <Outlet />
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
-        </Container>
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
       </body>
     </html>
   );
