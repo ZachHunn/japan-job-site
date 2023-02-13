@@ -6,7 +6,7 @@ import ViewSidebarRoundedIcon from "@mui/icons-material/ViewSidebarRounded";
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import axios from "axios";
 import type { Jobs } from "../../../src/xata";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { JobDetails } from "~/components/JobDetails";
 
 export const loader = async () => {
@@ -26,7 +26,7 @@ export default function JobsPage() {
     open: false,
   });
   const jobs = useLoaderData<Jobs[]>();
-  console.log(jobs.find((job) => job.jobId === sideDrawerState.jobId));
+
   const viewCellAction = (params: GridRowParams) => {
     return [
       <GridActionsCellItem
@@ -34,7 +34,6 @@ export default function JobsPage() {
         icon={<ViewSidebarRoundedIcon color="info" />}
         label="View Job"
         onClick={() => {
-          console.log(params.row.jobId);
           setSideDrawerState({ jobId: params.row.jobId as number, open: true });
         }}
       />,
@@ -51,40 +50,47 @@ export default function JobsPage() {
     {
       field: "actions",
       type: "actions",
+      headerName: "View Job",
       width: 150,
       getActions: viewCellAction,
     },
   ];
 
-  const rows = jobs.map((job) => {
-    const {
-      id,
-      jobId,
-      jobTitle,
-      companyName,
-      companyLocation,
-      jobLocation,
-      postedDate,
-    } = job;
-    return {
-      id: id,
-      jobId: jobId,
-      jobTitle: jobTitle,
-      companyName: companyName,
-      companyLocation: companyLocation,
-      jobLocation: jobLocation,
-      postedDate: postedDate,
-    };
-  });
+  const rows = useMemo(() => {
+    return jobs.map((job) => {
+      const {
+        id,
+        jobId,
+        jobTitle,
+        companyName,
+        companyLocation,
+        jobLocation,
+        postedDate,
+      } = job;
+      return {
+        id: id,
+        jobId: jobId,
+        jobTitle: jobTitle,
+        companyName: companyName,
+        companyLocation: companyLocation,
+        jobLocation: jobLocation,
+        postedDate: postedDate,
+      };
+    });
+  }, [jobs]);
 
   return (
-    <Box className=" h-[720px] w-full px-12">
+    <Box className=" h-[540px] w-full px-12">
       <Typography
         variant="h1"
-        className="text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text underline text-center py-6"
+        className="text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text underline text-center py-4"
       >
         Japan Dev Jobs
       </Typography>
+      <Typography
+        className="text-center pb-4"
+        variant="h4"
+      >{`${jobs.length} Jobs`}</Typography>
       <DataGrid
         className="border-none"
         columns={columns}
@@ -92,7 +98,7 @@ export default function JobsPage() {
         pageSize={50}
         rowsPerPageOptions={[50]}
         getRowId={(row) => row.id}
-        disableSelectionOnClick
+        pagination
       />
       <Drawer
         sx={{

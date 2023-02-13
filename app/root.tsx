@@ -6,8 +6,9 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "@remix-run/react";
-
+import { AnimatePresence } from "framer-motion";
 import styles from "./styles/app.css";
 
 export function links() {
@@ -28,10 +29,12 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
+        <AnimatePresence key={useLocation().pathname}>
+          <Outlet />
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </AnimatePresence>
       </body>
     </html>
   );
