@@ -1,13 +1,21 @@
-import { Box, Typography, Drawer } from "@mui/material";
+import AddToQueueIcon from "@mui/icons-material/AddToQueue";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ViewSidebarRoundedIcon from "@mui/icons-material/ViewSidebarRounded";
+import { Box, Button, Drawer, Typography } from "@mui/material";
 import type { GridColumns, GridRowParams } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridActionsCellItem,
+  GridToolbarContainer,
+  GridToolbarFilterButton,
+} from "@mui/x-data-grid";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import ViewSidebarRoundedIcon from "@mui/icons-material/ViewSidebarRounded";
-import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import axios from "axios";
-import type { Jobs } from "../../../src/xata";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { JobDetails } from "~/components/JobDetails";
+import { ResponseModal } from "~/components/ResponseModal";
+import type { Jobs } from "../../../src/xata";
 
 export const loader = async () => {
   const response = await axios.get(
@@ -20,12 +28,56 @@ type SideDrawerProps = {
   jobId: number | null;
   open: boolean;
 };
+
+type ModalProps = {
+  modalTitle: string;
+  modalResponse: string;
+};
+
+type ButtonTextProps = {
+  addButtonText: string;
+  deleteButtonText: string;
+};
+
 export default function JobsPage() {
+  const [modalIsopen, setModalIsOpen] = useState<boolean>(false);
+  const [buttonText, setButtonText] = useState<ButtonTextProps>({
+    addButtonText: "Add Jobs",
+    deleteButtonText: "Remove Jobs",
+  });
+  const [responseInfo, setResponseInfo] = useState<ModalProps>({
+    modalTitle: "",
+    modalResponse: "",
+  });
   const [sideDrawerState, setSideDrawerState] = useState<SideDrawerProps>({
     jobId: null,
     open: false,
   });
   const jobs = useLoaderData<Jobs[]>();
+
+  const postJobsResponse = async (): Promise<void> => {
+    const res = await axios.post(
+      "https://japandev-jobs-notion.vercel.app/api/jobs/create"
+    );
+    setResponseInfo({
+      modalTitle: "New Jobs On Japan-Dev.com",
+      modalResponse: res.data.data,
+    });
+    setModalIsOpen(true);
+    setButtonText({ ...buttonText, addButtonText: "Add Jobs" });
+  };
+
+  const deleteJobsResponse = async (): Promise<void> => {
+    const res = await axios.delete(
+      "https://japandev-jobs-notion.vercel.app/api/jobs/delete"
+    );
+    setResponseInfo({
+      modalTitle: "Jobs Removed From Japan-Dev.com",
+      modalResponse: res.data.data,
+    });
+    setModalIsOpen(true);
+    setButtonText({ ...buttonText, deleteButtonText: "Remove Jobs" });
+  };
 
   const viewCellAction = (params: GridRowParams) => {
     return [
@@ -34,7 +86,7 @@ export default function JobsPage() {
         icon={<ViewSidebarRoundedIcon color="info" />}
         label="View Job"
         onClick={() => {
-          setSideDrawerState({ jobId: params.row.jobId as number, open: true });
+          setSideDrawerState({ jobId: params.row.jobId, open: true });
         }}
       />,
     ];
@@ -75,12 +127,55 @@ export default function JobsPage() {
         companyLocation: companyLocation,
         jobLocation: jobLocation,
         postedDate: postedDate,
-      };
+      } as Jobs;
     });
   }, [jobs]);
 
+  const GridToolbarAddJobsButton = (): JSX.Element => {
+    return (
+      <Button
+        disabled={buttonText.addButtonText === "Searching..."}
+        onClick={() => {
+          setButtonText({ ...buttonText, addButtonText: "Searching..." });
+          postJobsResponse();
+        }}
+        className="w-[145px]"
+        color="secondary"
+        startIcon={<AddToQueueIcon />}
+      >
+        {buttonText.addButtonText}
+      </Button>
+    );
+  };
+
+  const GridToolbarDeleteStaleJobsButton = (): JSX.Element => {
+    return (
+      <Button
+        disabled={buttonText.deleteButtonText === "Searching..."}
+        onClick={() => {
+          setButtonText({ ...buttonText, deleteButtonText: "Searching..." });
+          deleteJobsResponse();
+        }}
+        color="secondary"
+        startIcon={<DeleteIcon />}
+      >
+        {buttonText.deleteButtonText}
+      </Button>
+    );
+  };
+
+  const CustomToolabr = () => {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarFilterButton color="secondary" />
+        <GridToolbarAddJobsButton />
+        <GridToolbarDeleteStaleJobsButton />
+      </GridToolbarContainer>
+    );
+  };
+
   return (
-    <Box className=" h-[540px] w-full px-12">
+    <Box className=" md:h-[540px] w-full px-12">
       <Typography
         variant="h1"
         className="text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text underline text-center py-4"
@@ -90,6 +185,7 @@ export default function JobsPage() {
       <Typography
         className="text-center pb-4"
         variant="h4"
+        component="h2"
       >{`${jobs.length} Jobs`}</Typography>
       <DataGrid
         className="border-none"
@@ -98,6 +194,7 @@ export default function JobsPage() {
         pageSize={50}
         rowsPerPageOptions={[50]}
         getRowId={(row) => row.id}
+        components={{ Toolbar: CustomToolabr }}
         pagination
       />
       <Drawer
@@ -120,6 +217,12 @@ export default function JobsPage() {
           />
         )}
       </Drawer>
+      <ResponseModal
+        modalTitle={responseInfo.modalTitle}
+        isOpen={modalIsopen}
+        setModalIsOpen={setModalIsOpen}
+        response={responseInfo.modalResponse}
+      />
     </Box>
   );
 }

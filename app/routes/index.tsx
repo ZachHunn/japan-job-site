@@ -11,8 +11,8 @@ export default function Index() {
       className="h-screen bg-contain bg-no-repeat py-72"
       style={{ background: "url('/img/tokyo.jpg')" }}
     >
-      <div className="w-full z-0 inline-block fixed top-[370px] left-[450px]">
-        <div className=" h-screen bg-white -rotate-45 transform origin-bottom-left opacity-90 "></div>
+      <div className="w-full z-0 inline-block fixed md:top-[370px] md:left-[450px]">
+        <div className=" h-screen bg-white md:-rotate-45 transform origin-bottom-left opacity-90 "></div>
       </div>
       <div className="flex flex-col justify-center items-center pb-12">
         <Typography

@@ -86,7 +86,7 @@ export const JobDetails: FC<JobDetailProps> = ({
         {job?.applicationUrl ? (
           <Link
             className="overflow-hidden text-ellipsis"
-            to={job?.applicationUrl as string}
+            to={job?.applicationUrl}
             target="_blank"
           >
             <Typography className="pl-4">{job?.applicationUrl}</Typography>
