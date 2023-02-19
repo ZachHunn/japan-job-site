@@ -31,7 +31,7 @@ export const ResponseModal: FC<RepsonseModalProps> = ({
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box className="w-1/3 md:h-[300px] absolute bg-white top-1/2 left-1/2 right-auto bottom-auto -translate-x-1/2 -translate-y-1/2 p-5 rounded-lg shadow-lg">
+        <Box className="w-5/12 md:h-[300px] absolute bg-white top-1/2 left-1/2 right-auto bottom-auto -translate-x-1/2 -translate-y-1/2 p-5 rounded-lg shadow-lg">
           <div className="flex flex-col items-center p-6">
             <Typography variant="h5" component="h1">
               {modalTitle}
