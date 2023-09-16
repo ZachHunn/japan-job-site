@@ -19,7 +19,7 @@ import type { Jobs } from "../../../src/xata";
 
 export const loader = async () => {
   const response = await axios.get(
-    "https://japandev-jobs-notion.vercel.app/api/jobs"
+    "https://japandev-job-search-api.vercel.app/api/jobs"
   );
   return json(response.data.data);
 };
@@ -57,7 +57,7 @@ export default function JobsPage() {
 
   const postJobsResponse = async (): Promise<void> => {
     const res = await axios.post(
-      "https://japandev-jobs-notion.vercel.app/api/jobs/create"
+      "https://japandev-job-search-api.vercel.app/api/jobs/create"
     );
     setResponseInfo({
       modalTitle: "New Jobs On Japan-Dev.com",
@@ -69,7 +69,7 @@ export default function JobsPage() {
 
   const deleteJobsResponse = async (): Promise<void> => {
     const res = await axios.delete(
-      "https://japandev-jobs-notion.vercel.app/api/jobs/delete"
+      "https://japandev-job-search-api.vercel.app/api/jobs/delete"
     );
     setResponseInfo({
       modalTitle: "Jobs Removed From Japan-Dev.com",
